@@ -1,0 +1,11 @@
+flask~=2.2.2
+Werkzeug~=2.2.2
+flask_sqlalchemy
+marshmallow_sqlalchemy
+flask-httpauth
+jwt
+pyjwt
+psycopg2
+# flask_user
+flask_session
+flask_login
