@@ -11,15 +11,17 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(60), nullable = False)
     email = db.Column(db.String(60), unique=True, nullable = False)
     password = db.Column(db.String(60), unique=True)
-    role = db.relationship('Role', backref='user')
 
+    #role = db.relationship('Role', backref='user')
+    role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
     recipes = db.relationship('Recipe', secondary=favorite_recipe_table_name, back_populates='users')
 
 
-    def __init__(self, name, email, password):
-        self.username = name
+    def __init__(self, username, email, password,role_id):
+        self.username = username
         self.email = email
         self.password = password
+        self.role_id=role_id
 
     def to_json(self):
         return {
@@ -33,8 +35,11 @@ class Role(db.Model):
     __tablename__ = role_table_name
 
     id = db.Column(db.Integer, primary_key=True)
-    role_name = db.Column(db.String(60), nullable=False, unique=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    role_name = db.Column(db.String(60), nullable=False)
 
-    def __init__(self, role):
-        self.role_name = role
+    user_id = db.relationship('User', backref='role')
+    #user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    def __init__(self, role_name):
+        self.role_name = role_name
+

@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request, Response
+from sqlalchemy import update
 
 from db import db
 from models import recipe
@@ -51,6 +52,7 @@ def update_ingredient():
     else:
         #update_ingredient(ingredient_id,new_ingredient_name)
         if ingredient.name != ingredient_new_name:
-            ingredient.name = ingredient_new_name
+            #update_ingredient = update(Ingredient).values(name=ingredient_new_name)
+            #db.session.execute(update_ingredient)
             db.session.commit()
         return 'Ingredient updated successfully'
