@@ -24,11 +24,15 @@ class User(db.Model, UserMixin):
         self.role_id=role_id
 
     def to_json(self):
+        role = "user"
+        if self.role_id == 1:
+            role = "admin_routes"
         return {
-            'name': self.name,
-            'first_name': self.first_name,
+            'id': self.id,
+            'username': self.username,
             'email': self.email,
-            'password': self.password
+            'password': self.password,
+            'role': role
         }
 
 class Role(db.Model):
@@ -43,3 +47,8 @@ class Role(db.Model):
     def __init__(self, role_name):
         self.role_name = role_name
 
+    def to_json(self):
+        return {
+            'id': self.id,
+            'role': self.role_name,
+        }
