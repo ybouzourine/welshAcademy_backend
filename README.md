@@ -3,7 +3,7 @@
 
 L'application consiste  à fournir des recettes aux amateurs de cheddar du monde entier.
 
-## Défficultées rencontrées:
+## Difficultées rencontrées:
   Première prise en main de Flask
   Authentification des utilisateurs (Flask)
  
