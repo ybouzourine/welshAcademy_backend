@@ -2,6 +2,7 @@ from db import db
 from models.favoriterecipe import FavoriteRecipe
 from models.recipe import Recipe
 from models.recipeingredient import RecipeIngredient
+from repository.ingredient_repository import IngredientRepository
 
 
 class RecipeRepository():
@@ -30,7 +31,7 @@ class RecipeRepository():
         """ return True if and only if l'recette existe dans la base de donnée """
         return RecipeRepository.recipe_name_existe_in_data(recipe_name=recipe.name)
 
-    """ get RECIPE by_id or by_name """
+    """ get RECIPE by_id or by_name by_ingredients_id """
     @classmethod
     def get_recipe_by_id(cls, recipe_id):
         recipe = Recipe.query.filter(
@@ -42,6 +43,46 @@ class RecipeRepository():
         recipe = Recipe.query.filter(
             Recipe.name == recipe_name).first()
         return recipe
+
+    @classmethod
+    def get_recipes_by_ingredient_id(cls, ingrdient_id):
+        """ "pour un ingredient_id donner return une list de toutes les recettes qui contiet l'ingredient
+             si  l id existe dans la bDD des Ingredients sinon return ensemble vide """
+        if not IngredientRepository.ingredient_id_existe_in_data(ingridient_id=ingrdient_id):
+            return list()
+        else:
+            recipeingredients = RecipeIngredient.query.filter(
+                    RecipeIngredient.ingredient_id == ingrdient_id
+                ).all()
+            if not recipeingredients:
+                return list()
+            else:
+                list_recipes = list()
+                for recipe_ingredient in recipeingredients:
+                    recipe = RecipeRepository.get_recipe_by_id(recipe_id=recipe_ingredient.recipe_id)
+                    list_recipes.append(recipe)
+            return list_recipes
+
+    @classmethod
+    def get_recipes_by_list_ingredients_id(cls, list_ingrdients_id):
+        """ "pour une liste d'ingredient_id donner return une list de toutes les recettes qui contient la list des id """
+        list_recipes = set(Recipe.query.all())
+        for id in list_ingrdients_id:
+            list_recipes = list_recipes.intersection(set(RecipeRepository.get_recipes_by_ingredient_id(ingrdient_id=id)))
+        return list_recipes
+
+    @classmethod
+    def get_recipes_without_list_ingredients_id(cls, list_ingrdients_id):
+        return set(Recipe.query.all()).difference(
+            RecipeRepository.get_recipes_by_list_ingredients_id(list_ingrdients_id)
+        )
+
+    @classmethod
+    def list_to_json(cls, list_recipes):
+        list_to_json = list()
+        for recipe in list_recipes:
+            list_to_json.append(recipe.to_json())
+        return list_to_json.__str__()
 
     """ Create recipe """
     @classmethod
@@ -56,7 +97,7 @@ class RecipeRepository():
             db.session.commit()
 
 
-    """ Delete recipe by_name or by_id"""
+    """ Delete recipe or by_id"""
     @classmethod
     def delete_recipe_by_id(cls,recipe_id):
         recipe = RecipeRepository.get_recipe_by_id(recipe_id=recipe_id)
@@ -73,11 +114,16 @@ class RecipeRepository():
         db.session.delete(recipe)
         db.session.commit()
 
-    """ Update Recipe name or email or role or password """
+    """ Update Recipe name or description  """
     @classmethod
     def update_recipe_name(cls, recipe_id, new_name):
         recipe = RecipeRepository.get_recipe_by_id(recipe_id=recipe_id)
         recipe.name = new_name
+        db.session.commit()
+    @classmethod
+    def update_recipe_decsription(cls, recipe_id, new_description):
+        recipe = RecipeRepository.get_recipe_by_id(recipe_id=recipe_id)
+        recipe.description = new_description
         db.session.commit()
 
 

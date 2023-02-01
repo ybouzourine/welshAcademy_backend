@@ -102,7 +102,7 @@ def delete_user():
 
 # http://127.0.0.1:5000/admin/users/update?id=&newname=&newemail=&newpassword=&newroleid=
 @admin_user_bp.route('/update', methods=['GET' , 'POST'])
-def update_username():
+def update_user():
     user_id = request.args.get('id')
     user_new_name = request.args.get('newname')
     user_new_email = request.args.get('newemail')
@@ -159,8 +159,8 @@ def create_recipe():
         return 'recipe exists already '
     else:
         if  (0 < len(recipe_ingredients_id) == len(quantities)):
-            if recipe_ingredients_id != list(set(recipe_ingredients_id)):
-                return "La recette ne peut pas contenir des ingredient doubler"
+            if len(recipe_ingredients_id) != len(set(recipe_ingredients_id)):
+                return f"La recette ne peut pas contenir des ingredient doubler{list(recipe_ingredients_id).__str__()}kkkkkkk{set(recipe_ingredients_id).__str__()}"
             else:
                 RecipeRepository.create_recipe(
                     recipe_name=recipe_name,
@@ -182,38 +182,36 @@ def delete_recipe():
         RecipeRepository.delete_recipe_by_id(recipe_id=recipe_id)
         return 'Recipe delete successfully'
 
-# http://127.0.0.1:5000/admin/recipes/update/name?id=2&newnamerecipe=
-@admin_recipe_bp.route('/update/name', methods=['GET' , 'POST'])
-def update_name_recipe():
+# http://127.0.0.1:5000/admin/recipes/update?id=2&newnamerecipe=&newdescreption=
+@admin_recipe_bp.route('/update', methods=['GET' , 'POST'])
+def update_recipe():
     recipe_id = request.args.get('id')
-    new_name_recipe = request.args.get('newnamerecipe')
-    if not Recipe.query.filter(Recipe.id == recipe_id).first():
-        return 'The Recipe doest not exist'
+    recipe_new_name = request.args.get('newnamerecipe')
+    recipe_new_decreption = request.args.get('newdescreption')
+    if not RecipeRepository.recipe_id_existe_in_data(recipe_id=recipe_id):
+        return ' Can not Update, The Recipe doest not exist'
     else:
-        recipe = Recipe.query.filter(Recipe.id == recipe_id).first()
-        if recipe.name != new_name_recipe:
-            recipe.name = new_name_recipe
-            db.session.commit()
-        return 'Recipe updated_name successfully'
-
-# http://127.0.0.1:5000/admin/recipes/update/description?id=2&newdescriptionrecipe=
-@admin_recipe_bp.route('/update/description', methods=['GET' , 'POST'])
-def update_description_recipe():
-    recipe_id = request.args.get('id')
-    new_description_recipe = request.args.get('newdescriptionrecipe')
-    if not Recipe.query.filter(Recipe.id == recipe_id).first():
-        return 'The Recipe doest not exist'
-    else:
-        recipe = Recipe.query.filter(Recipe.id == recipe_id).first()
-        if recipe.description != new_description_recipe:
-            recipe.description = new_description_recipe
-            db.session.commit()
-        return 'Recipe updated_description successfully'
+        chaine = " : "
+        if ((recipe_new_name is not None) and (recipe_new_name != "")
+                and (not RecipeRepository.recipe_name_existe_in_data(recipe_name=recipe_new_name))):
+            RecipeRepository.update_recipe_name(
+                recipe_id=recipe_id,
+                new_name=recipe_new_name
+            )
+            chaine += f" | name |"
+        if ((recipe_new_decreption is not None) and (recipe_new_decreption != "")
+                and RecipeRepository.get_recipe_by_id(recipe_id=recipe_id).description != recipe_new_decreption):
+            RecipeRepository.update_recipe_decsription(
+                recipe_id=recipe_id,
+                new_description=recipe_new_decreption
+            )
+            chaine += " | description |  "
+        return 'Recipe updated_name successfully '+chaine
 
 # http://127.0.0.1:5000/admin/recipes/getall
 @admin_recipe_bp.route('/getall', methods=['GET' , 'POST'])
 def getall_recipes():
-    if not Recipe.query.all():
+    if RecipeRepository.data_recipe_is_empty():
         return 'The table Recipes is empty'
     else:
         list_recipes = list()

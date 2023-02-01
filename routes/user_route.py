@@ -7,7 +7,8 @@ from models.ingredient import Ingredient
 from models.recipe import Recipe
 from models.recipeingredient import RecipeIngredient
 from models.user import User
-
+from repository.ingredient_repository import IngredientRepository
+from repository.recipe_repository import RecipeRepository
 
 """                  INGREDIENTS                    """
 
@@ -16,8 +17,8 @@ user_ingredients_bp = Blueprint("users_ingredients", __name__, url_prefix="/user
 # http://127.0.0.1:5000/user/ingredients/getall
 @user_ingredients_bp.route('/getall', methods=['GET', 'POST'])
 def getall_ingredients():
-    if not Ingredient.query.all():
-        return 'The table Ingredients is empty'
+    if IngredientRepository.data_ingredient_is_empty():
+        return 'The table INGREDIENTS is empty'
     else:
         list_ingredients = list()
         for ingredient in Ingredient.query.all():
@@ -32,7 +33,7 @@ user_recipes_bp = Blueprint("users_recipes", __name__, url_prefix="/user/recipes
 # http://127.0.0.1:5000/user/recipes/getall
 @user_recipes_bp.route('/getall', methods=['GET'])
 def getall_recipes():
-    if not Recipe.query.all():
+    if RecipeRepository.data_recipe_is_empty():
         return 'The table Recipes is empty'
     else:
         list_recipes = list()
@@ -40,59 +41,48 @@ def getall_recipes():
             list_recipes.append(recipe.to_json())
         return list_recipes
 
-# http://127.0.0.1:5000/user/recipes/find_by_id?id=
+# http://127.0.0.1:5000/user/recipes/find_by_id?recipeid=
 @user_recipes_bp.route('/find_by_id', methods=['GET' , 'POST'])
 def find_recipe_by_id():
-    recipe_id = request.args.get('id')
-    if not Recipe.query.filter(Recipe.id == recipe_id):
-        return 'The recipe does not existe'
+    recipe_id = request.args.get('recipeid')
+    if not RecipeRepository.recipe_id_existe_in_data(recipe_id=recipe_id):
+        return "Recipe does not existe in data"
     else:
-        recipe = Recipe.query.filter(Recipe.id == recipe_id).first()
-        return recipe.to_json()
+        return RecipeRepository.get_recipe_by_id(recipe_id=recipe_id).to_json()
 
 # http://127.0.0.1:5000/user/recipes/find_by_name?namerecipe=
 @user_recipes_bp.route('/find_by_name', methods=['GET' , 'POST'])
 def recipe_find_by_name():
-    name_recipe = request.args.get('namerecipe')
-    if not Recipe.query.filter(Recipe.name == name_recipe):
+    recipe_name = request.args.get('namerecipe')
+    if not RecipeRepository.recipe_name_existe_in_data(recipe_name=recipe_name):
         return 'The recipe does not existe'
     else:
-        recipe = Recipe.query.filter(Recipe.name == name_recipe).first()
+        recipe = RecipeRepository.get_recipe_by_name(recipe_name=recipe_name)
         return recipe.to_json()
 
-# http://127.0.0.1:5000/user/recipes/find_by_ingredient?nameingredient=
+# http://127.0.0.1:5000/user/recipes/find_by_ingredient?idingredient=
 @user_recipes_bp.route('/find_by_ingredient', methods=['GET' , 'POST'])
 def recipe_find_by_ingredient():
-    name_ingredient = request.args.get('nameingredient')
-    ingredient_id = Ingredient.query.filter(Ingredient.name == name_ingredient).first().id
-    recipes_containt_ingredient = RecipeIngredient.query.filter(RecipeIngredient.ingredient_id == ingredient_id).all()
-    if not recipes_containt_ingredient:
-        return 'aucune recette contient l ingredient'
+    """ "pour une liste d'ingredient_id donner return une list de toutes les recettes qui contient la list des id """
+    ingridents_id = request.args.getlist('idingredient')
+    if not ingridents_id:
+        return "Aucun argument donner"
     else:
-        list_recipes = list()
-        for recipe_containt_ingredient in recipes_containt_ingredient:
-            recipe_id = recipe_containt_ingredient.recipe_id
-            recipe = Recipe.query.filter(Recipe.id == recipe_id).first()
-            list_recipes.append(recipe.to_json())
-    return list_recipes
+        return RecipeRepository.list_to_json(
+            RecipeRepository.get_recipes_by_list_ingredients_id(list_ingrdients_id=ingridents_id)
+        )
 
-# http://127.0.0.1:5000/user/recipes/with_aout_ingredient?nameingredient=
+# http://127.0.0.1:5000/user/recipes/with_aout_ingredient?idingredient=
 @user_recipes_bp.route('/with_aout_ingredient', methods=['GET' , 'POST'])
 def recipe_find_without_ingredient():
-    name_ingredient = request.args.get('nameingredient')
-    ingredient_id = Ingredient.query.filter(Ingredient.name == name_ingredient).first().id
-    recipes_no_ingredient = RecipeIngredient.query.filter(RecipeIngredient.ingredient_id != ingredient_id).all()
-    if not recipes_no_ingredient:
-        return f" all recipes contain the ingredient {name_ingredient}"
+    """ "pour une liste d'ingredient_id donner return une list de toutes les recettes qui ne contient pas la list des id """
+    ingridents_id = request.args.getlist('idingredient')
+    if not ingridents_id:
+        return "Aucun argument donner"
     else:
-        list_recipes = list()
-        for recipe_no_ingredient in recipes_no_ingredient:
-            recipe_id = recipe_no_ingredient.recipe_id
-            recipe = Recipe.query.filter(Recipe.id == recipe_id).first()
-            if recipe.to_json() not in list_recipes:
-                list_recipes.append(recipe.to_json())
-    return list_recipes
-
+        return RecipeRepository.list_to_json(
+            RecipeRepository.get_recipes_without_list_ingredients_id(list_ingrdients_id=ingridents_id)
+        )
 
 # http://127.0.0.1:5000/user/recipes/like?recipeid= &userid=
 @user_recipes_bp.route('/like', methods=['GET' , 'POST'])
