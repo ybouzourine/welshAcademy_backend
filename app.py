@@ -8,19 +8,15 @@ from models import ingredient, recipe, user, favoriterecipe, recipeingredient
 
 
 from models.user import User, Role
-
 from routes.admin_route import admin_user_bp, admin_recipe_bp, admin_role_bp,admin_ingredient_bp
-
 from routes.auth import auth_bp
-from routes.recipe_route import recipe_bp
-from routes.ingredients_route import ingredient_bp
 from routes.user_route import user_ingredients_bp, user_recipes_bp
 
 
 def create_app():
     app = Flask(__name__)
     """Configuration de l'URI de connexion à la base de données"""
-    app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:0000@localhost:5432/backendb1"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:0000@localhost:5432/backendb0"
     app.config['SECRET_KEY'] = "secretkey"
 
 
@@ -45,9 +41,7 @@ def create_app():
     app.register_blueprint(user_ingredients_bp)
     app.register_blueprint(user_recipes_bp)
 
-    app.register_blueprint(recipe_bp)
     app.register_blueprint(auth_bp)
-    app.register_blueprint(ingredient_bp)
 
 
     # Il faut rajouter le context... à toi de chercher ce que ça veut dire

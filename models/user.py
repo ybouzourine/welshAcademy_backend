@@ -10,11 +10,11 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(60), nullable = False)
     email = db.Column(db.String(60), unique=True, nullable = False)
-    password = db.Column(db.String(60), unique=True)
+    password = db.Column(db.String(60), unique=True, nullable=False)
 
     #role = db.relationship('Role', backref='user')
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
-    recipes = db.relationship('Recipe', secondary=favorite_recipe_table_name, back_populates='users')
+    recipes = db.relationship('Recipe', secondary=favorite_recipe_table_name, back_populates='users', cascade="all, delete, save-update")
 
 
     def __init__(self, username, email, password,role_id):

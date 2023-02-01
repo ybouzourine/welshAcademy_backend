@@ -11,7 +11,7 @@ class FavoriteRecipe(db.Model):
     __tablename__ = favorite_recipe_table_name
     id = db.Column(db.Integer,primary_key = True)
 
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete="CASCADE",onupdate="CASCADE"))
     recipe_id = db.Column(db.Integer,db.ForeignKey('recipe.id'))
 
 

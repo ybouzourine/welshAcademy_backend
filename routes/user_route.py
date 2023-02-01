@@ -8,10 +8,10 @@ from models.recipe import Recipe
 from models.recipeingredient import RecipeIngredient
 from models.user import User
 
-"""                  INGREDIENTS                    """
-user_ingredients_bp = Blueprint("users_ingredients", __name__, url_prefix="/user/ingredients")
 
-# http://127.0.0.1:5000/user/ingredients
+"""                  INGREDIENTS                    """
+
+user_ingredients_bp = Blueprint("users_ingredients", __name__, url_prefix="/user/ingredients")
 
 # http://127.0.0.1:5000/user/ingredients/getall
 @user_ingredients_bp.route('/getall', methods=['GET', 'POST'])
@@ -24,7 +24,9 @@ def getall_ingredients():
             list_ingredients.append(ingredient.to_json())
         return list_ingredients
 
+
 """                  RECIPES                    """
+
 user_recipes_bp = Blueprint("users_recipes", __name__, url_prefix="/user/recipes")
 
 # http://127.0.0.1:5000/user/recipes/getall
@@ -57,11 +59,6 @@ def recipe_find_by_name():
     else:
         recipe = Recipe.query.filter(Recipe.name == name_recipe).first()
         return recipe.to_json()
-
-
-
-# Trouver une recette par ingredient
-# trouver une recette où un ingredient ne figure pas
 
 # http://127.0.0.1:5000/user/recipes/find_by_ingredient?nameingredient=
 @user_recipes_bp.route('/find_by_ingredient', methods=['GET' , 'POST'])
