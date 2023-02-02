@@ -12,24 +12,24 @@ class IngredientRepository():
 
     @classmethod
     def ingredient_id_existe_in_data(cls, ingridient_id):
-        """ return True if and only if l ID de l ingredient existe dans la base de donnée """
+        """ return True if and only if the ingredient ID exists in the database """
         ingredient = Ingredient.query.filter(
             Ingredient.id == ingridient_id).first()
         return not ingredient == None
 
     @classmethod
     def ingredient_name_existe_in_data(cls, ingridient_name):
-        """ return True if and only if le name de l'ingredient existe dans la base de donnée """
+        """ return True if and only if ingredient name exists in the database """
         ingredient = Ingredient.query.filter(
             Ingredient.name == ingridient_name).first()
         return not ingredient == None
 
     @classmethod
     def ingredient_existe_in_data(cls, ingridient):
-        """ return True if and only if l'ingredient existe dans la base de donnée """
+        """ return True if and only if the ingredient exists in the database """
         return IngredientRepository.ingredient_name_existe_in_data(ingridient.name)
 
-    """ get INGREDIENT by_id or by_name or getall"""
+    """ get INGREDIENT by_id, by_name"""
     @classmethod
     def get_ingredient_by_id(cls, ingredient_id):
         ingredient = Ingredient.query.filter(
@@ -50,7 +50,7 @@ class IngredientRepository():
         db.session.add(new_ingredient)
         db.session.commit()
 
-    """ Delete INGREDIENT ingredient or by_name or by_id"""
+    """ Delete INGREDIENT ingredient by_id"""
     @classmethod
     def delete_ingredient_by_id(cls,ingredient_id):
         ingredient = IngredientRepository.get_ingredient_by_id(ingredient_id=ingredient_id)
